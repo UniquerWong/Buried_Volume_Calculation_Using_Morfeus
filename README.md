@@ -5,8 +5,6 @@ This project provides a streamlined workflow for extracting and analyzing geomet
 
 # Geometry Analysis Toolkit for Metal Complexes
 
-### *Buried Volume (%V<sub>bur</sub>) and Bite Angle Calculation Using Morfeus*
-
 ## 1. Overview
 
 This repository provides a compact workflow for analyzing **steric and geometric parameters** of metal complexes using the **Morfeus** library.
