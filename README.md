@@ -188,18 +188,4 @@ Please cite the Morfeus methodology if used in scientific publications:
 
 ---
 
-## 6. License
-
-You may include your preferred license here, e.g.:
-
-```
-MIT License
-```
-
----
-
-## 7. Contact
-
-For questions, improvements, or feature requests, feel free to open an issue or contact the repository maintainer.
-
 
