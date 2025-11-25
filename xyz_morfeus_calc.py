@@ -35,10 +35,10 @@ for file_name in sorted(os.listdir(FOLDER_PATH)):
         elements, coordinates = read_xyz(xyz_path)
         n_atoms = len(elements)
         if n_atoms == 0:
-            print(f"⚠️ {file_name} 原子数为 0，跳过")
+            print(f"{file_name} 原子数为 0，跳过")
             continue
     except Exception as e:
-        print(f"⚠️ 读取 {file_name} 失败: {e}")
+        print(f"读取 {file_name} 失败: {e}")
         continue
 
     # 默认金属是最后一个原子（1-based 索引）
@@ -51,7 +51,7 @@ for file_name in sorted(os.listdir(FOLDER_PATH)):
         try:
             bv = BuriedVolume(elements, coordinates, metal_idx_1b, radius=r)
         except Exception as e:
-            print(f"⚠️ BuriedVolume 初始化失败 {file_name}, radius={r}: {e}")
+            print(f"BuriedVolume 初始化失败 {file_name}, radius={r}: {e}")
             row[f"V_bur (%) - {r}"] = None
             row[f"Buried Volume - {r}"] = None
             row[f"Free Volume - {r}"] = None
@@ -87,7 +87,7 @@ for file_name in sorted(os.listdir(FOLDER_PATH)):
     ]
 
     if len(donor_indices) < 2:
-        print(f"⚠️ {file_name} 找不到足够的非金属原子作为 donor，Bite Angle 记为 None")
+        print(f"{file_name} 找不到足够的非金属原子作为 donor，Bite Angle 记为 None")
         row["Bite Angle"] = None
         row["Inverted"] = None
     else:
@@ -97,14 +97,14 @@ for file_name in sorted(os.listdir(FOLDER_PATH)):
             angle = ba.angle
             inverted = getattr(ba, "inverted", False)
         except Exception as e:
-            print(f"⚠️ {file_name} BiteAngle 计算失败: {e}")
+            print(f"{file_name} BiteAngle 计算失败: {e}")
             angle = None
             inverted = None
 
         row["Bite Angle"] = angle
         row["Inverted"] = inverted
         print(
-            f"✅ {file_name} 计算完成，"
+            f"{file_name} 计算完成，"
             f"Bite Angle = {angle}, Inverted = {inverted}"
         )
 
@@ -116,4 +116,5 @@ with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
     writer.writeheader()
     writer.writerows(rows)
 
-print(f"✅ 所有计算完成，结果已保存到 {OUTPUT_CSV}")
+print(f"所有计算完成，结果已保存到 {OUTPUT_CSV}")
+
