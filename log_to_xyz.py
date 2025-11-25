@@ -57,7 +57,7 @@ if __name__ == "__main__":
     log_files = [f for f in os.listdir(current_folder) if f.lower().endswith('.log')]
 
     if not log_files:
-        print("⚠️ 当前文件夹没有 .log 文件")
+        print("当前文件夹没有 .log 文件")
     else:
         for log in log_files:
             log_path = os.path.join(current_folder, log)
@@ -65,6 +65,7 @@ if __name__ == "__main__":
             atoms = extract_xyz_from_log(log_path)
             if atoms:
                 write_xyz(atoms, xyz_path)
-                print(f"✅ 已处理：{log} -> {os.path.basename(xyz_path)}")
+                print(f"已处理：{log} -> {os.path.basename(xyz_path)}")
             else:
                 print(f" 未在 {log} 中找到坐标")
+
