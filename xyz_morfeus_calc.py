@@ -1,4 +1,4 @@
-# xyz_Vbur_BiteAngle_combined.py
+# xyz_Vbur_BiteAngle_combined_fixed2.py
 import os
 import csv
 from morfeus import BuriedVolume, BiteAngle, read_xyz
@@ -10,8 +10,12 @@ OUTPUT_CSV = "combined_vbur_biteangle_results.csv"
 # 需要计算 buried volume 的球半径
 RADII = [3.0, 4.0, 5.0]
 
-# 金属元素列表（用于自动识别 donor 原子：前两个“非金属”当作 donor）
-METALS = {"Pd", "Pt", "Ni", "Co", "Rh", "Ir", "Fe", "Cu", "Zn", "Au", "Ag"}
+# 所有金属元素（用于 donor 判断：金属 = 潜在 donor）
+METALS_ALL = {"Pd", "Pt", "Ni", "Co", "Rh", "Ir", "Fe", "Cu", "Zn", "Au", "Ag"}
+
+# 优先作为“配位中心金属”的元素（排除配体金属，例如常见的 Fe-茂体系）
+# 可以根据你的体系自己再增删
+CENTER_METALS = {"Pd", "Pt", "Ni", "Co", "Rh", "Ir", "Cu", "Zn", "Au", "Ag"}
 
 # 构建 CSV 表头
 headers = ["File"]
@@ -41,8 +45,19 @@ for file_name in sorted(os.listdir(FOLDER_PATH)):
         print(f"读取 {file_name} 失败: {e}")
         continue
 
-    # 默认金属是最后一个原子（1-based 索引）
-    metal_idx_1b = n_atoms
+    # === 自动识别配位中心金属原子索引（1-based） ===
+    # 1. 优先在 CENTER_METALS 中寻找（Ir、Rh、Pd、Pt 等）
+    primary_candidates = [i + 1 for i, e in enumerate(elements) if e in CENTER_METALS]
+
+    # 2. 如果找不到，在所有金属中寻找（包括 Fe）
+    if primary_candidates:
+        metal_idx_1b = primary_candidates[0]
+    else:
+        all_metal_candidates = [i + 1 for i, e in enumerate(elements) if e in METALS_ALL]
+        if not all_metal_candidates:
+            print(f"{file_name} 中未找到金属元素 {METALS_ALL}，跳过该结构")
+            continue
+        metal_idx_1b = all_metal_candidates[0]
 
     row = {"File": file_name}
 
@@ -79,11 +94,11 @@ for file_name in sorted(os.listdir(FOLDER_PATH)):
         row[f"Distal Volume - {r}"] = dist_val
 
     # === 2. 计算 Bite Angle ===
-    # donor 自动选：除最后一个金属以外，前两个“非金属”原子
+    # donor 自动选：除中心金属原子外，前两个“非金属”原子
     donor_indices = [
         i + 1
-        for i, e in enumerate(elements[:-1])  # 排除最后一个（假定是金属）
-        if e not in METALS
+        for i, e in enumerate(elements)
+        if (i + 1) != metal_idx_1b and e not in METALS_ALL
     ]
 
     if len(donor_indices) < 2:
@@ -105,6 +120,7 @@ for file_name in sorted(os.listdir(FOLDER_PATH)):
         row["Inverted"] = inverted
         print(
             f"{file_name} 计算完成，"
+            f"Metal idx = {metal_idx_1b}, Donors = ({donor1_idx}, {donor2_idx}), "
             f"Bite Angle = {angle}, Inverted = {inverted}"
         )
 
@@ -117,4 +133,3 @@ with open(OUTPUT_CSV, "w", newline="", encoding="utf-8") as f:
     writer.writerows(rows)
 
 print(f"所有计算完成，结果已保存到 {OUTPUT_CSV}")
-
